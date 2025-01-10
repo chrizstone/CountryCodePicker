@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart' show IterableExtension;
+import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 
@@ -8,9 +9,9 @@ import 'country_localizations.dart';
 mixin ToAlias {}
 
 /// Country element. This is the element that contains all the information
-class CountryCode {
+class CountryCode extends Equatable {
   /// the name of the country
-  String? name;
+  final String? name;
 
   /// the flag of the country
   final String? flagUri;
@@ -21,7 +22,7 @@ class CountryCode {
   /// the dial code (+39,+93..)
   final String? dialCode;
 
-  CountryCode({
+  const CountryCode({
     this.name,
     this.flagUri,
     this.code,
@@ -44,7 +45,9 @@ class CountryCode {
     try {
       return CountryCode.fromCountryCode(countryCode);
     } catch (e) {
-      if (kDebugMode) print('Failed to recognize country from countryCode: $countryCode');
+      if (kDebugMode) {
+        print('Failed to recognize country from countryCode: $countryCode');
+      }
       return null;
     }
   }
@@ -60,14 +63,16 @@ class CountryCode {
     try {
       return CountryCode.fromDialCode(dialCode);
     } catch (e) {
-      if (kDebugMode) print('Failed to recognize country from dialCode: $dialCode');
+      if (kDebugMode) {
+        print('Failed to recognize country from dialCode: $dialCode');
+      }
       return null;
     }
   }
 
   CountryCode localize(BuildContext context) {
-    return this
-      ..name = CountryLocalizations.of(context)?.translate(code) ?? name;
+    return copyWith(
+        name: CountryLocalizations.of(context)?.translate(code) ?? name);
   }
 
   factory CountryCode.fromJson(Map<String, dynamic> json) {
@@ -90,5 +95,23 @@ class CountryCode {
 
   String? get _cleanName {
     return name?.replaceAll(RegExp(r'[[\]]'), '').split(',').first;
+  }
+
+  @override
+  // TODO: implement props
+  List<Object?> get props => [name, flagUri, code, dialCode];
+
+  CountryCode copyWith({
+    String? name,
+    String? flagUri,
+    String? code,
+    String? dialCode,
+  }) {
+    return CountryCode(
+      name: name ?? this.name,
+      flagUri: flagUri ?? this.flagUri,
+      code: code ?? this.code,
+      dialCode: dialCode ?? this.dialCode,
+    );
   }
 }
